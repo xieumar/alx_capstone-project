@@ -2,6 +2,7 @@
 import './App.css'
 import Hero from './components/Hero'
 import Navbar from './components/Navbar'
+import PopularDestinations from './components/PopularDestinations'
 
 function App() {
   
@@ -10,6 +11,7 @@ function App() {
     <>
      <Navbar />
      <Hero />
+     <PopularDestinations />
     </>
   )
 }
