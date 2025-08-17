@@ -25,7 +25,7 @@ function PopularDestinations() {
   const [active, setActive] = useState(null);
 
   return (
-    <div className="popular-destinations flex flex-col gap-6 w-full p-10 my-6">
+    <div className="popular-destinations flex flex-col gap-6 w-full p-4 my-6">
       <div className="section-title w-full flex justify-between items-center px-[100px]">
         <div className="text  flex flex-col gap-2 ">
           <h1 className=" text-3xl font-semibold">Popular Destinations</h1>
