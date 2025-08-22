@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { IoIosArrowDropleft,  IoIosArrowDropright } from "react-icons/io";
-import { IoIosArrowDroprightCircle, IoIosArrowDropleftCircle } from "react-icons/io";
+import { MdArrowRightAlt } from "react-icons/md";
+
 
 const cards = [
   {
@@ -25,51 +25,43 @@ function PopularDestinations() {
   const [active, setActive] = useState(null);
 
   return (
-    <div className="popular-destinations flex flex-col gap-6 w-full p-4 my-6">
-      <div className="section-title w-full flex justify-between items-center px-[100px]">
-        <div className="text  flex flex-col gap-2 ">
-          <h1 className=" text-3xl font-semibold">Popular Destinations</h1>
-          <p>
-            Discover travel spots filled with culture, beauty, and adventure.
-          </p>
+    <div className="popular-destinations flex flex-col gap-6 w-full p-4 my-12">
+      <div className="section-title w-full ">
+        
+      <div className="text  flex flex-col text-center mb-6">
+          <p className=" text-[#143D60] font-bold">EXPLORE</p>
+          <h1 className=" text-4xl font-semibold">Popular Destinations</h1>
         </div>
-
-        <div className="icons flex gap-2 text-4xl text-blue-800 cursor-pointer">
-          {active === "left" ? (
-            <IoIosArrowDropleftCircle
-              onClick={() => setActive(null)}
-            />
-          ) : (
-            <IoIosArrowDropleft
-              onClick={() => setActive("left")}
-            />
-          )}
-
-          {active === "right" ? (
-            <IoIosArrowDroprightCircle
-              onClick={() => setActive(null)}
-            />
-          ) : (
-            <IoIosArrowDropright
-              onClick={() => setActive("right")}
-            />
-          )}
-        </div>
+      
       </div>
       <div className="card-container flex justify-center items-center flex-wrap gap-6 ">
         {cards.map((card, index) => (
-          <div key={index} className="card relative">
-            <img
-              src={card.src}
-              alt={card.title}
-              className="w-[250px] h-[350px] rounded-2xl object-cover"
-            />
-            <h3 className=" text-lg font-semibold mt-2 absolute bottom-2 left-3 px-2 text-stone-50">
-              {card.title}
-            </h3>
-          </div>
+          <div 
+          key={index} 
+          className="card relative shadow-lg rounded-xl overflow-hidden 
+                     transition-transform duration-300 hover:shadow-xl hover:scale-105 cursor-pointer"
+        >
+          <img
+            src={card.src}
+            alt={card.title}
+            className="w-[250px] h-[350px] object-cover rounded-xl"
+          />
+          <h3 className="text-lg font-semibold absolute bottom-2 left-3 px-2 text-stone-50">
+            {card.title}
+          </h3>
+        </div>
+        
         ))}
       </div>
+      <div className="button mt-12 text-center mx-auto">
+        <button className="relative px-10 py-2 border-2 border-[#143D60] text-[#143D60] bg-transparent rounded-md overflow-hidden transition-all duration-500 z-10 group">
+          <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
+            View More <MdArrowRightAlt />
+          </span>
+          <span className="absolute top-0 left-0 w-0 h-full bg-[#143D60] transition-all duration-500 group-hover:w-full z-0"></span>
+        </button>
+      </div>
+      
     </div>
   );
 }

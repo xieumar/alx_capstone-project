@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import { IoIosArrowDropleft, IoIosArrowDropright } from "react-icons/io";
-import {
-  IoIosArrowDroprightCircle,
-  IoIosArrowDropleftCircle,
-} from "react-icons/io";
+import { MdArrowRightAlt } from "react-icons/md";
 
 const cards = [
   {
@@ -35,39 +31,25 @@ const cards = [
 function TravelGuides() {
   const [active, setActive] = useState(null);
   return (
-    <div className="travel-guides flex flex-col gap-6 w-full p-10 my-6">
-      <div className="section-title w-full flex justify-between items-center px-[100px]">
-        <div className="text  flex flex-col gap-2 ">
-          <h1 className=" text-3xl font-semibold">Popular Travel guides</h1>
-          <p>
-            Discover handpicked travel guides that make exploring the world
-            easier, smarter, and more exciting
-          </p>
-        </div>
-
-        <div className="icons flex gap-2 text-4xl text-blue-800 cursor-pointer">
-          {active === "left" ? (
-            <IoIosArrowDropleftCircle onClick={() => setActive(null)} />
-          ) : (
-            <IoIosArrowDropleft onClick={() => setActive("left")} />
-          )}
-
-          {active === "right" ? (
-            <IoIosArrowDroprightCircle onClick={() => setActive(null)} />
-          ) : (
-            <IoIosArrowDropright onClick={() => setActive("right")} />
-          )}
+    <div className="travel-guides flex flex-col gap-3 w-full p-10 my-6">
+      <div className="section-title w-full">
+        <div className="text  flex flex-col text-center mb-6">
+          <p className=" text-[#143D60] font-bold">BLOGS</p>
+          <h1 className=" text-4xl font-semibold">Popular Travel guides</h1>
         </div>
       </div>
       <div className="cards-container flex justify-center items-center flex-wrap gap-6">
         {cards.map((card, index) => (
-          <div key={index} className="card flex flex-col gap-4">
+          <div
+            key={index}
+            className="card flex flex-col shadow-lg rounded-2xl  transition-all duration-300 hover:shadow-xl hover:scale-103 cursor-pointer "
+          >
             <img
               src={card.src}
               alt={card.title}
-              className="w-[340px] h-[280px] rounded-2xl object-cover"
+              className="w-[340px] h-[280px] rounded-t-2xl object-cover"
             />
-            <div className="text flex gap-2 flex-col">
+            <div className="text flex gap-2 flex-col p-4">
               <h1 className=" text-base font-semibold">{card.description}</h1>
               <div className=" flex gap-4 items-center">
                 <img
@@ -80,6 +62,14 @@ function TravelGuides() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="button mt-12 text-center mx-auto">
+        <button className="relative px-10 py-2 border-2 border-[#143D60] text-[#143D60] bg-transparent rounded-md overflow-hidden transition-all duration-500 z-10 group">
+          <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
+            View More <MdArrowRightAlt />
+          </span>
+          <span className="absolute top-0 left-0 w-0 h-full bg-[#143D60] transition-all duration-500 group-hover:w-full z-0"></span>
+        </button>
       </div>
     </div>
   );

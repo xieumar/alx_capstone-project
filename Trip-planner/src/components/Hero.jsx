@@ -14,7 +14,7 @@ function Hero({ user = { name: "Uriel" } }) {
             type="text px-12"
             className="w-full h-full placeholder-black px-3 border-none rounded-l-lg"
             placeholder="Location, place ....." />
-            <button className="bg-blue-800 items-center text-white rounded-r-lg h-[40px] px-4">
+            <button className="bg-[#143D60] items-center text-white rounded-r-lg h-[40px] px-4">
               Search
             </button>
           </div>
