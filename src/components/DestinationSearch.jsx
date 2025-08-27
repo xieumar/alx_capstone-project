@@ -1,7 +1,8 @@
 // src/components/DestinationSearch.jsx
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDestinations, fetchCityImage } from "../auth";
+import { fetchDestinations } from "../auth"; // or ../api
+import DestinationCard from "./DestinationCard";
 
 export default function DestinationSearch() {
   const [keyword, setKeyword] = useState("");
@@ -47,41 +48,8 @@ export default function DestinationSearch() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {destinations?.map((city) => (
-          <CityCard key={city.cityCode} city={city} />
+          <DestinationCard key={city.cityCode} city={city} />
         ))}
-      </div>
-    </div>
-  );
-}
-
-// Separate component for each city card
-function CityCard({ city }) {
-  const { data: imageUrl, isLoading } = useQuery({
-    queryKey: ["cityImage", city.name],
-    queryFn: () => fetchCityImage(city.name),
-    staleTime: 1000 * 60 * 60, // 1 hour cache
-  });
-
-  return (
-    <div className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow duration-200">
-      <div className="h-40 w-full bg-gray-200 relative">
-        {isLoading ? (
-          <div className="animate-pulse w-full h-full bg-gray-300" />
-        ) : imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={city.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full bg-gray-300 text-gray-600">
-            No Image
-          </div>
-        )}
-      </div>
-      <div className="p-3">
-        <h3 className="font-bold text-lg">{city.name}</h3>
-        <p className="text-gray-600">{city.country}</p>
       </div>
     </div>
   );
