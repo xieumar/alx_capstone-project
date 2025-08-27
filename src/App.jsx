@@ -1,24 +1,14 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import DestinationSearch from "./components/DestinationSearch";
 
-import './App.css'
-import Hero from './components/Hero'
-import Navbar from './components/Navbar'
-import PopularDestinations from './components/PopularDestinations'
-import TravelGuides from './components/TravelGuides'
-import Testimonials from "./components/Testimonials"
-import Footer from './components/Footer'
+const queryClient = new QueryClient();
+
 function App() {
-  
-
   return (
-    <>
-     <Navbar />
-     <Hero />
-     <PopularDestinations />
-     <TravelGuides />
-     <Testimonials />
-     <Footer />
-    </>
-  )
+    <QueryClientProvider client={queryClient}>
+      <DestinationSearch />
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
