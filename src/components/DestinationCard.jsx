@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCityImage } from "../auth";
+import { Link } from "react-router-dom";
 
 export default function DestinationCard({ city }) {
   const { data: imageUrl, isLoading } = useQuery({
@@ -10,7 +11,8 @@ export default function DestinationCard({ city }) {
   });
 
   return (
-    <div className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow duration-200 flex flex-col">
+     <Link to={`/destination/${city.name}`} className="block">
+      <div className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow duration-200 flex flex-col">
       {/* City Image */}
       <div className="h-40 w-full bg-gray-200 relative">
         {isLoading ? (
@@ -43,5 +45,7 @@ export default function DestinationCard({ city }) {
         )}
       </div>
     </div>
+     </Link>
+    
   );
 }

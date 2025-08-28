@@ -1,26 +1,15 @@
-// src/components/DestinationSearch.jsx
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchDestinations } from "../auth"; // or ../api
-import DestinationCard from "./DestinationCard";
+import { useNavigate } from "react-router-dom";
 
 export default function DestinationSearch() {
   const [keyword, setKeyword] = useState("");
-
-  const {
-    data: destinations,
-    isLoading: loadingDestinations,
-    error: destinationsError,
-    refetch: refetchDestinations,
-  } = useQuery({
-    queryKey: ["destinations", keyword],
-    queryFn: () => fetchDestinations(keyword),
-    enabled: false,
-    staleTime: 1000 * 60 * 5,
-  });
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    if (keyword.trim()) refetchDestinations();
+    if (keyword.trim()) {
+      // Navigate to results page with keyword as query param
+      navigate(`/destinations?keyword=${encodeURIComponent(keyword)}`);
+    }
   };
 
   return (
@@ -31,7 +20,7 @@ export default function DestinationSearch() {
           placeholder="Search city"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="flex-1 p-2 border rounded"
+          className="flex-1 p-2 border rounded w-sm bg-white placeholder-gray-500 text-black"
         />
         <button
           onClick={handleSearch}
@@ -39,17 +28,6 @@ export default function DestinationSearch() {
         >
           Search
         </button>
-      </div>
-
-      {loadingDestinations && <p>Loading destinations...</p>}
-      {destinationsError && (
-        <p className="text-red-500">Error: {destinationsError.message}</p>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {destinations?.map((city) => (
-          <DestinationCard key={city.cityCode} city={city} />
-        ))}
       </div>
     </div>
   );

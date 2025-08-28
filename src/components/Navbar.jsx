@@ -23,7 +23,7 @@ function Navbar() {
       </div>
 
         <div className="nav-links w-[35%] ml-30 flex items-center gap-8 text-black-300 ">
-            {["Home", "Travel Guides", "Explore", "Trip Plans"].map((link) => (
+            {["Home", "Explore", "Travel Guides", "Trip Plans"].map((link) => (
                 <p
                 key={link}
                 className="relative cursor-pointer group transition-colors duration-300 hover:text-[#143D60]"

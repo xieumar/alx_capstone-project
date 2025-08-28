@@ -10,7 +10,7 @@ import {
 
 function Footer() {
   return (
-    <div className=" w-full">
+    <div className=" w-full ">
       <div className="floater flex justify-between relative w-[70%] mx-auto p-8 xl:px-20 bg-blue-300 rounded-lg -mb-10 z-10">
         <h1 className="text-3xl font-semibold">
           Ready for your next adventure?{" "}
