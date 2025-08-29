@@ -24,10 +24,15 @@ export default function LoadingPage({ cityName }) {
     }, []);
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen text-black">
-            <div className="w-14 h-14 border-4 border-white border-t-transparent rounded-full animate-spin mt-6"></div>
+        <div className="flex flex-col items-center justify-center h-[80vh] text-black">
 
-            <p className="mt-6 text-lg font-medium animate-pulse">
+            <div className="flex space-x-2">
+                <div className="w-3 h-3 bg-blue-700/50 rounded-full animate-bounce"></div>
+                <div className="w-3 h-3 bg-blue-800/70 rounded-full animate-bounce [animation-delay:-0.2s]"></div>
+                <div className="w-3 h-3 bg-blue-900 rounded-full animate-bounce [animation-delay:-0.4s]"></div>
+            </div>
+
+            <p className="text-lg font-medium animate-pulse">
                 {funMessages[messageIndex]}
             </p>
         </div>

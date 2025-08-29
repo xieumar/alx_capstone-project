@@ -17,7 +17,7 @@ export default function DestinationsPage() {
   });
 
   return (
-    <div className="mt-[50px] p-4 max-w-5xl mx-auto">
+    <div className="my-[80px] h-screen p-4 max-w-5xl mx-auto">
 
       {isLoading && <Loading />}
       {error && <p className="text-red-500">Error: {error.message}</p>}

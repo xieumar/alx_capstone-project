@@ -1,16 +1,32 @@
 import React from "react";
 import heroImage from "../assets/Hero-img.jpg";
-import DestinationSearch from "./DestinationSearch";
 
-function Hero({ user = { name: "Uriel" } }) {
+function Hero() {
   return (
-    <div className="hero h-[540px] w-full bg-center bg-[length:100%] bg-no-repeat flex justify-center items-center"
-    style={{ backgroundImage: `url(${heroImage})` }}
+    <div
+      className="relative h-[95vh] w-full bg-center bg-cover flex items-center justify-center"
+      style={{ backgroundImage: `url(${heroImage})` }}
     >
-      <div className="text-container">
-        <div className="hero-text text-stone-100 text-center">
-          <h1 className=" text-4xl">Good afternoon {user.name}</h1>
-          
+      {/* Overlay for sleek readability */}
+      <div className="absolute inset-0 bg-blue-400/20" />
+
+      {/* Content */}
+      <div className="relative text-center text-stone-100 max-w-2xl px-6">
+        <h1 className="text-5xl md:text-6xl font-semibold tracking-tight drop-shadow-lg">
+         Discover the Art of <br /> <span className=" text-blue-200 pb-1 border-b-[6px] border-b-blue-200 ">Easy</span> Travel
+        </h1>
+        <p className="mt-8 text-lg md:text-xl font-semibold leading-relaxed">
+          Explore cities, find vibes, and get inspired for your next adventure.
+        </p>
+
+        {/* Button */}
+        <div className="mt-7 flex justify-center">
+          <button className="relative px-8 py-3 border-2 border-white text-white rounded-lg overflow-hidden transition-all duration-500 z-10 group">
+            <span className="relative z-10 transition-colors duration-500 group-hover:text-[#143D60]">
+              Learn More
+            </span>
+            <span className="absolute top-0 left-0 w-0 h-full bg-white transition-all duration-500 group-hover:w-full z-0"></span>
+          </button>
         </div>
       </div>
     </div>
