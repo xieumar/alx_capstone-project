@@ -2,32 +2,35 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { Carousel } from "antd";
 import LoadingPage from "./Loading";
-
-import { getUnsplashImage, getDestinationDetails, fetchCityImages } from "../auth";
+import { getDestinationDetails } from "../auth";
 
 function DestinationDetails() {
   const { cityName } = useParams();
   const [details, setDetails] = useState(null);
-  const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [slides, setSlides] = useState([]);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        // Fetch main image, gallery, and wiki details
-        const [unsplashImg, wikiDetails, galleryImgs] = await Promise.all([
-          getUnsplashImage(cityName),
-          getDestinationDetails(cityName),
-          fetchCityImages(cityName),
-        ]);
+        const data = await getDestinationDetails(cityName);
 
-        setDetails({
-          image: unsplashImg,
-          ...wikiDetails,
-        });
+        setDetails(data);
 
-        setGallery(galleryImgs);
+        // Lazy-load images
+        const tempSlides = [];
+        for (let src of data.images || []) {
+          await new Promise((resolve) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+          tempSlides.push(src);
+          setSlides([...tempSlides]); // progressively render slides
+        }
       } catch (err) {
         console.error("Error fetching destination details:", err);
       } finally {
@@ -42,27 +45,36 @@ function DestinationDetails() {
   if (!details) return <p className="text-center mt-10">No details found.</p>;
 
   return (
-    <div className="mt-[50px] p-6 max-w-4xl mx-auto space-y-6">
-     <h1 className="text-3xl font-bold mb-2">{details.name}</h1>
-      {/* Gallery */}
-      {gallery.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {gallery.map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={`${cityName} ${idx + 1}`}
-              className="w-full h-32 object-cover rounded-lg shadow"
-            />
-          ))}
-        </div>
-      )}
+    <div className="flex flex-col lg:flex-row gap-6 my-[70px] px-8">
+      {/* Left column */}
+      <div className="lg:w-2/3 flex flex-col gap-6">
+        <h1 className="text-4xl font-semibold -mb-2 mt-2">{details.name}</h1>
 
-      {/* City Info */}
-      <div>
-        <p className="text-gray-700 mb-2">{details.description}</p>
+        {slides.length > 0 && (
+          <Carousel autoplay className="rounded-lg overflow-hidden">
+            {slides.map((img, idx) => (
+              <div
+                key={idx}
+                className="w-full h-[70vh] flex justify-center items-center overflow-hidden rounded-lg"
+              >
+                <img
+                  src={`${img}?w=1080&auto=format&fit=crop`}
+                  alt={`${cityName} ${idx + 1}`}
+                  className="w-full h-full object-cover object-center"
+                />
+              </div>
+            ))}
+          </Carousel>
+        )}
+
+        {slides.length === 0 && (
+          <p className="text-center mt-10">Loading images...</p>
+        )}
+
+        <p className="text-gray-700 text-justify">{details.description}</p>
+
         {details.guideLink && (
-          <div className="button mt-12 text-center mx-auto">
+          <div className="button">
             <a
               href={details.guideLink}
               target="_blank"
@@ -77,28 +89,41 @@ function DestinationDetails() {
           </div>
         )}
 
+        {details.attractions?.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-5 text-[#143D60] border-b-2 border-[#143D60] inline-block pb-1">
+              Top Attractions
+            </h2>
+            <ul className="flex flex-wrap gap-3 gap-y-4">
+              {details.attractions.slice(0, 12).map((attraction, idx) => {
+                const wikiLink = `https://en.wikipedia.org/wiki/${encodeURIComponent(
+                  attraction
+                )}`;
+                return (
+                  <li key={idx}>
+                    <a
+                      href={wikiLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#143D60] font-medium px-3 py-1 border border-[#143D60] border-[2px] rounded-lg hover:bg-[#143D60] hover:text-white transition-colors duration-300"
+                    >
+                      {attraction}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </div>
 
-      {/* Attractions */}
-      {details.attractions?.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">Top Attractions</h2>
-          <ul className="list-disc ml-6 space-y-1">
-            {details.attractions.slice(0, 12).map((attraction, idx) => (
-              <li key={idx}>{attraction}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Map */}
+      {/* Right column: map */}
       {details.coordinates && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-2">Map</h2>
+        <div className="lg:w-1/3 h-[100vh] my-15 text-center">
           <MapContainer
             center={[details.coordinates.lat, details.coordinates.lng]}
             zoom={12}
-            className="h-64 w-full rounded-xl z-0"
+            className="h-full w-full rounded-xl"
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

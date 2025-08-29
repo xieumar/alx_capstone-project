@@ -11,7 +11,7 @@ for (const key in attractions) {
 }
 
 // 🔑 Amadeus Auth
-async function getAmadeusToken() {
+export async function getAmadeusToken() {
   const tokenRes = await fetch(
     "https://test.api.amadeus.com/v1/security/oauth2/token",
     {
@@ -46,11 +46,9 @@ export async function fetchDestinations(keyword) {
 
   try {
     const access_token = await getAmadeusToken();
-
     const url = `https://test.api.amadeus.com/v1/reference-data/locations?keyword=${encodeURIComponent(
       keyword
     )}&subType=CITY`;
-
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${access_token}` },
     });
@@ -111,7 +109,6 @@ export async function fetchCityImage(cityName) {
       )}&client_id=${ACCESS_KEY}&per_page=1`
     );
     if (!res.ok) throw new Error("Unsplash request failed");
-
     const data = await res.json();
     return data.results[0]?.urls?.small || null;
   } catch (err) {
@@ -130,7 +127,6 @@ export async function fetchCityImages(cityName) {
       )}&client_id=${ACCESS_KEY}&per_page=6`
     );
     if (!res.ok) throw new Error("Unsplash request failed");
-
     const data = await res.json();
     return data.results.map((img) => img.urls.small);
   } catch (err) {
@@ -139,34 +135,62 @@ export async function fetchCityImages(cityName) {
   }
 }
 
-// 📖 Destination Details: Wikipedia + Amadeus POIs + Travel Guide link
+// 🔹 Fallback OSM geocoding
+export async function getCoordinatesFromOSM(cityName) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}`
+    );
+    const data = await res.json();
+    if (data.length > 0) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+    return null;
+  } catch (err) {
+    console.error("OSM geocoding error:", err);
+    return null;
+  }
+}
+
+// 📖 Destination Details
 export async function getDestinationDetails(cityName) {
   try {
     // Wikipedia
     const wikiRes = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
-        cityName
-      )}`
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`
     );
     const wikiData = await wikiRes.json();
     const description = wikiData.extract || "No description available.";
     const guideLink = wikiData.content_urls?.desktop?.page || "";
 
     // Amadeus coordinates
-    const access_token = await getAmadeusToken();
-    const geoRes = await fetch(
-      `https://test.api.amadeus.com/v1/reference-data/locations?keyword=${encodeURIComponent(
-        cityName
-      )}&subType=CITY`,
-      { headers: { Authorization: `Bearer ${access_token}` } }
-    );
-    const geoData = await geoRes.json();
-    const firstMatch = geoData.data?.[0];
-    const coordinates = firstMatch?.geoCode
-      ? { lat: firstMatch.geoCode.latitude, lng: firstMatch.geoCode.longitude }
-      : null;
+    let coordinates = null;
+    try {
+      const access_token = await getAmadeusToken();
+      const geoRes = await fetch(
+        `https://test.api.amadeus.com/v1/reference-data/locations?keyword=${encodeURIComponent(
+          cityName
+        )}&subType=CITY`,
+        { headers: { Authorization: `Bearer ${access_token}` } }
+      );
+      const geoData = await geoRes.json();
+      const firstMatch = geoData.data?.[0];
+      if (firstMatch?.geoCode) {
+        coordinates = {
+          lat: firstMatch.geoCode.latitude,
+          lng: firstMatch.geoCode.longitude,
+        };
+      }
+    } catch {
+      console.warn("Amadeus coordinates not found, falling back to OSM");
+    }
 
-    // OpenStreetMap attractions
+    // OSM fallback
+    if (!coordinates) {
+      coordinates = await getCoordinatesFromOSM(cityName);
+    }
+
+    // OSM attractions
     let attractionsList = [];
     if (coordinates) {
       const radius = 2000;
@@ -174,14 +198,19 @@ export async function getDestinationDetails(cityName) {
         [out:json];
         node(around:${radius},${coordinates.lat},${coordinates.lng})["tourism"~"museum|attraction|viewpoint"];
         out;`;
-      const osmRes = await fetch(
-        `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
-      );
-      const osmData = await osmRes.json();
-      attractionsList = osmData.elements.map((el) => el.tags?.name).filter(Boolean);
+      try {
+        const osmRes = await fetch(
+          `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
+        );
+        const osmData = await osmRes.json();
+        attractionsList = osmData.elements
+          .map((el) => el.tags?.name)
+          .filter(Boolean);
+      } catch {
+        console.warn("OSM attractions fetch failed");
+      }
     }
 
-    // Fetch multiple images for gallery
     const images = await fetchCityImages(cityName);
 
     return {
@@ -190,8 +219,8 @@ export async function getDestinationDetails(cityName) {
       guideLink,
       attractions: attractionsList.length ? attractionsList : ["No attractions found"],
       coordinates,
-      images,       // ✅ add images array
-      image: images[0] || null, // ✅ first image as main header image
+      images,
+      image: images[0] || null,
     };
   } catch (err) {
     console.error("Error fetching destination details:", err);
@@ -207,22 +236,17 @@ export async function getDestinationDetails(cityName) {
   }
 }
 
-
-
 // 🖼️ Unsplash single image helper
 export async function getUnsplashImage(cityName) {
   const ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
   try {
     const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        cityName
-      )}&client_id=${ACCESS_KEY}&per_page=1`
+      `https://api.unsplash.com/search/photos?query=${encodeURIComponent(cityName)}&client_id=${ACCESS_KEY}&per_page=1`
     );
     if (!response.ok) throw new Error("Unsplash request failed");
     const data = await response.json();
     return data.results[0]?.urls?.regular || "https://via.placeholder.com/800";
-  } catch (err) {
-    console.error("Error fetching Unsplash image:", err);
+  } catch {
     return "https://via.placeholder.com/800";
   }
 }
