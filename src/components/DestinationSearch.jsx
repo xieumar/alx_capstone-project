@@ -7,27 +7,26 @@ export default function DestinationSearch() {
 
   const handleSearch = () => {
     if (keyword.trim()) {
-      // Navigate to results page with keyword as query param
       navigate(`/destinations?keyword=${encodeURIComponent(keyword)}`);
     }
   };
 
   return (
-    <div className="p-4 max-w-5xl mx-auto">
-      <div className="flex mb-6">
+    <div className="max-w-5xl mx-auto">
+      <div className="flex">
         <input
           type="text"
           placeholder="Search city"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="flex-1 p-2 border rounded w-sm bg-white placeholder-gray-500 text-black"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
+        className="flex-1 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-[#143D60]/20 placeholder-black/70 text-black focus:outline-none focus:ring-2 focus:ring-[#143D60] transition-all"
+
         />
-        <button
-          onClick={handleSearch}
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Search
-        </button>
       </div>
     </div>
   );

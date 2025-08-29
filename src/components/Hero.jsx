@@ -10,9 +10,7 @@ function Hero({ user = { name: "Uriel" } }) {
       <div className="text-container">
         <div className="hero-text text-stone-100 text-center">
           <h1 className=" text-4xl">Good afternoon {user.name}</h1>
-          <div className="hero-btn flex items-center mt-4">
-            <DestinationSearch />
-          </div>
+          
         </div>
       </div>
     </div>

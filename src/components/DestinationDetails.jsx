@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import LoadingPage from "./Loading";
 
 import { getUnsplashImage, getDestinationDetails, fetchCityImages } from "../auth";
 
@@ -37,7 +38,7 @@ function DestinationDetails() {
     fetchDetails();
   }, [cityName]);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+ if (loading) return <LoadingPage cityName={cityName} />;
   if (!details) return <p className="text-center mt-10">No details found.</p>;
 
   return (
