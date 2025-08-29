@@ -3,6 +3,7 @@ import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
+import ExplorePage from "./pages/ExplorePage";
 import DestinationsPage from "./pages/DestinationsPage";
 import DestinationDetailPage from "./pages/DestinationDetailPage";
 import Navbar from "./components/Navbar";
@@ -20,6 +21,7 @@ function App() {
        <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/explore" element={<ExplorePage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
        <Route path="/destination/:cityName" element={<DestinationDetailPage />} />
       </Routes>

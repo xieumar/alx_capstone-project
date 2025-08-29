@@ -38,18 +38,12 @@ function DestinationDetails() {
     fetchDetails();
   }, [cityName]);
 
- if (loading) return <LoadingPage cityName={cityName} />;
+  if (loading) return <LoadingPage cityName={cityName} />;
   if (!details) return <p className="text-center mt-10">No details found.</p>;
 
   return (
     <div className="mt-[50px] p-6 max-w-4xl mx-auto space-y-6">
-      {/* Header Image */}
-      <img
-        src={details.image}
-        alt={cityName}
-        className="w-full h-64 object-cover rounded-2xl shadow-lg"
-      />
-
+     <h1 className="text-3xl font-bold mb-2">{details.name}</h1>
       {/* Gallery */}
       {gallery.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -66,18 +60,23 @@ function DestinationDetails() {
 
       {/* City Info */}
       <div>
-        <h1 className="text-3xl font-bold mb-2">{details.name}</h1>
         <p className="text-gray-700 mb-2">{details.description}</p>
         {details.guideLink && (
-          <a
-            href={details.guideLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
-          >
-            Read Full Guide
-          </a>
+          <div className="button mt-12 text-center mx-auto">
+            <a
+              href={details.guideLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative px-10 py-2 border-2 border-[#143D60] text-[#143D60] bg-transparent rounded-md overflow-hidden transition-all duration-500 z-10 group inline-block"
+            >
+              <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
+                Read Full Guide
+              </span>
+              <span className="absolute top-0 left-0 w-0 h-full bg-[#143D60] transition-all duration-500 group-hover:w-full z-0"></span>
+            </a>
+          </div>
         )}
+
       </div>
 
       {/* Attractions */}
