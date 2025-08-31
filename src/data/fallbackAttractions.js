@@ -1,4 +1,4 @@
-export const attractions = {
+const  fallbackAttractions = {
   "Paris": ["Eiffel Tower", "Louvre Museum", "Notre-Dame Cathedral", "Montmartre"],
   "London": ["Tower of London", "British Museum", "London Eye", "Buckingham Palace"],
   "New York": ["Statue of Liberty", "Central Park", "Times Square", "Metropolitan Museum"],
@@ -31,3 +31,5 @@ export const attractions = {
   "Buenos Aires": ["La Boca", "Recoleta Cemetery", "Teatro Colón", "Plaza de Mayo"],
   "Lisbon": ["Belém Tower", "Jerónimos Monastery", "Alfama District", "Rossio Square"]
 };
+
+export default fallbackAttractions;

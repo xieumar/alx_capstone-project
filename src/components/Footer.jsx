@@ -18,7 +18,7 @@ function Footer() {
         <div className="button text-center">
           <button className="relative px-10 py-2 border-2 border-black text-black bg-transparent rounded-md overflow-hidden transition-all duration-500 z-10 group">
             <span className="relative z-10 flex items-center gap-2 transition-colors duration-500 group-hover:text-white">
-              Book Now <MdArrowRightAlt />
+              Explore Now <MdArrowRightAlt />
             </span>
             <span className="absolute top-0 left-0 w-0 h-full bg-black transition-all duration-500 group-hover:w-full z-0"></span>
           </button>

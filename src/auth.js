@@ -1,5 +1,5 @@
 import fallbackDestinations from "./data/fallbackDestinations";
-import { attractions } from "./data/fallbackAttractions";
+import  attractions  from "./data/fallbackAttractions";
 
 // normalize function
 const normalize = (str) => (str ? str.trim().toLowerCase() : "");
@@ -152,19 +152,44 @@ export async function getCoordinatesFromOSM(cityName) {
   }
 }
 
-// 📖 Destination Details
-export async function getDestinationDetails(cityName) {
+// 📌 Make sure getWeather is defined above getDestinationDetails
+export async function getWeather(lat, lon) {
   try {
-    // Wikipedia
+    const key = import.meta.env.VITE_OPENWEATHER_KEY;
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&units=metric`
+    );
+    if (!res.ok) throw new Error("Weather fetch failed");
+    return await res.json();
+  } catch (err) {
+    console.error("getWeather error:", err);
+    return null;
+  }
+}
+
+// 📖 Destination Details (Amadeus + Wikipedia + OSM + Unsplash)
+export async function getDestinationDetails(cityName) {
+  let coordinates = null;
+  let firstMatch = null;
+  let attractionsList = [];
+  let cityCode = null;
+  let images = [];
+  let description = "No description available.";
+  let guideLink = "";
+  let flights = [];
+  let hotels = [];
+  let weather = null;
+
+  try {
+    // ✅ Wikipedia
     const wikiRes = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`
     );
     const wikiData = await wikiRes.json();
-    const description = wikiData.extract || "No description available.";
-    const guideLink = wikiData.content_urls?.desktop?.page || "";
+    description = wikiData.extract || description;
+    guideLink = wikiData.content_urls?.desktop?.page || "";
 
-    // Amadeus coordinates
-    let coordinates = null;
+    // ✅ Amadeus city + coordinates
     try {
       const access_token = await getAmadeusToken();
       const geoRes = await fetch(
@@ -174,24 +199,27 @@ export async function getDestinationDetails(cityName) {
         { headers: { Authorization: `Bearer ${access_token}` } }
       );
       const geoData = await geoRes.json();
-      const firstMatch = geoData.data?.[0];
+      firstMatch = geoData.data?.[0];
+
       if (firstMatch?.geoCode) {
         coordinates = {
           lat: firstMatch.geoCode.latitude,
           lng: firstMatch.geoCode.longitude,
         };
       }
+      if (firstMatch?.iataCode) {
+        cityCode = firstMatch.iataCode;
+      }
     } catch {
       console.warn("Amadeus coordinates not found, falling back to OSM");
     }
 
-    // OSM fallback
+    // ✅ OSM fallback
     if (!coordinates) {
       coordinates = await getCoordinatesFromOSM(cityName);
     }
 
-    // OSM attractions
-    let attractionsList = [];
+    // ✅ OSM attractions fallback
     if (coordinates) {
       const radius = 2000;
       const overpassQuery = `
@@ -203,15 +231,51 @@ export async function getDestinationDetails(cityName) {
           `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
         );
         const osmData = await osmRes.json();
-        attractionsList = osmData.elements
-          .map((el) => el.tags?.name)
-          .filter(Boolean);
+        attractionsList = osmData.elements.map((el) => el.tags?.name).filter(Boolean);
       } catch {
         console.warn("OSM attractions fetch failed");
       }
     }
 
-    const images = await fetchCityImages(cityName);
+    // ✅ Unsplash images
+    images = await fetchCityImages(cityName);
+
+    // ✅ Flights
+    if (cityCode) {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+        flights = await getFlightOffers("NYC", cityCode, today);
+        flights = flights.slice(0, 5);
+      } catch (err) {
+        console.warn("Flights fetch failed", err);
+        flights = [];
+      }
+    }
+
+    // ✅ Hotels
+    if (cityCode) {
+      try {
+        hotels = await getHotels(cityCode);
+        hotels = hotels.slice(0, 8); // limit to 8
+      } catch (err) {
+        console.warn("Hotels fetch failed", err);
+        hotels = [];
+      }
+    }
+
+    // ✅ Weather
+    if (coordinates) {
+      const rawWeather = await getWeather(coordinates.lat, coordinates.lng);
+      weather = rawWeather
+        ? {
+            description: rawWeather.weather?.[0]?.description ?? "N/A",
+            temp:
+              rawWeather.main?.temp !== undefined
+                ? Math.round(rawWeather.main.temp)
+                : "N/A",
+          }
+        : null;
+    }
 
     return {
       name: wikiData.title || cityName,
@@ -219,22 +283,66 @@ export async function getDestinationDetails(cityName) {
       guideLink,
       attractions: attractionsList.length ? attractionsList : ["No attractions found"],
       coordinates,
+      cityCode,
       images,
       image: images[0] || null,
+      flights,
+      hotels,
+      weather,
     };
   } catch (err) {
     console.error("Error fetching destination details:", err);
     return {
       name: cityName,
-      description: "No information available.",
-      guideLink: "",
-      attractions: [],
-      coordinates: null,
-      images: [],
-      image: null,
+      description,
+      guideLink,
+      attractions: attractionsList.length ? attractionsList : ["No attractions found"],
+      coordinates,
+      cityCode,
+      images,
+      image: images[0] || null,
+      flights,
+      hotels,
+      weather,
     };
   }
 }
+// Fetch flights from backend proxy
+export async function getFlightsFromServer(destinationCode) {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const res = await fetch(`http://localhost:5000/api/flights/NYC/${destinationCode}/${today}`);
+    const data = await res.json();
+    return (data.data || []).map((offer) => {
+      const price = offer?.price?.total || "N/A";
+      const currency = offer?.price?.currency || "USD";
+      const airline =
+        offer?.itineraries?.[0]?.segments?.[0]?.carrierCode || "Unknown Airline";
+      return { airline, price, currency };
+    });
+  } catch (err) {
+    console.error("Flights fetch from server failed", err);
+    return [];
+  }
+}
+
+// Fetch hotels from backend proxy
+export async function getHotelsFromServer(cityCode) {
+  try {
+    const res = await fetch(`http://localhost:5000/api/hotels/${cityCode}`);
+    const data = await res.json();
+    return (data.data || []).map((hotelOffer) => {
+      const hotelName = hotelOffer.hotel?.name || "Unnamed Hotel";
+      const price = hotelOffer.offers?.[0]?.price?.total || "N/A";
+      const currency = hotelOffer.offers?.[0]?.price?.currency || "USD";
+      return { name: hotelName, price, currency };
+    });
+  } catch (err) {
+    console.error("Hotels fetch from server failed", err);
+    return [];
+  }
+}
+
 
 // 🖼️ Unsplash single image helper
 export async function getUnsplashImage(cityName) {
@@ -250,3 +358,4 @@ export async function getUnsplashImage(cityName) {
     return "https://via.placeholder.com/800";
   }
 }
+

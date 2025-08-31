@@ -8,6 +8,7 @@ import DestinationsPage from "./pages/DestinationsPage";
 import DestinationDetailPage from "./pages/DestinationDetailPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import TripPlanner from "./pages/TripPlanner";
 import ScrollToTop from "./components/ScrollToTop";
 
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
        <Route path="/destination/:cityName" element={<DestinationDetailPage />} />
+       <Route path="/trip-planner/:cityName" element={<TripPlanner />} />
       </Routes>
        <Footer />
      </Router>
