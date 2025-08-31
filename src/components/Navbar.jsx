@@ -25,11 +25,10 @@ function Navbar() {
         </div>
 
       
-        <div className="hidden md:flex md:w-2/5">
+        <div className="hidden lg:flex md:w-2/5">
           <DestinationSearch />
         </div>
 
-        {/* Desktop nav links */}
         <div className="hidden md:flex md:items-center md:gap-8">
           {navLinks.map(({ name, path }) => (
             <Link
@@ -45,7 +44,7 @@ function Navbar() {
         </div>
 
         {/* Mobile menu button */}
-        <div className="md:hidden flex items-center gap-4">
+        <div className="md:hidden flex items-center gap-4 ">
           <FaRegUser className="text-xl cursor-pointer" />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -58,14 +57,14 @@ function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow-md px-4 py-3 flex flex-col gap-3">
+        <div className="md:hidden bg-blue-300/20 shadow-md px-4 py-3 flex flex-col gap-3">
           <DestinationSearch />
           {navLinks.map(({ name, path }) => (
             <Link
               key={name}
               to={path}
               onClick={() => setMenuOpen(false)}
-              className="block py-2 px-2 text-[#143D60] font-medium rounded hover:bg-[#143D60] hover:text-white transition-colors"
+              className="block py-2 px-2 text-black text-center font-medium rounded transition-colors"
             >
               {name}
             </Link>
