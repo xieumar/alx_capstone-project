@@ -6,12 +6,12 @@ import Testimonials from '../components/Testimonials'
 
 function Home() {
   return (
-    <>
-        <Hero />
+    <div className=" w-[100vw]">
+       <Hero />
         <PopularDestinations />
         <TravelGuides />
         <Testimonials />
-    </>
+    </div>
   )
 }
 
