@@ -1,3 +1,6 @@
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+
 const cards = [
   {
     text: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Pariatur mollitia quo inventore atque magnam, delectus voluptate? Dolores velit illum impedit dolore maxime ratione laudantium.",
@@ -32,19 +35,25 @@ const cards = [
 ];
 
 function Testimonials() {
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+
   return (
     <div className="testimonials flex flex-col gap-3 w-full p-10 my-6">
       <div className="text flex flex-col text-center">
         <p className=" font-bold text-[#143D60]">TESTIMONIALS</p>
-        <h1 className="text-4xl font-semibold">
+        <h1 className="text-3xl sm:text-5xl font-semibold">
           Trusted by Clients, <br /> Reccomended by Clients
         </h1>
       </div>
-      <div className="card-container flex justify-center flex-wrap gap-8 mt-6">
+      <div className="card-container flex justify-center flex-wrap gap-8 mt-6" ref={containerRef}>
         {cards.map((card, index) => (
-          <div
-            className={`card w-[350px] p-8 rounded-lg shadow-lg pb-0 cursor-pointer ${card.bg} ${card.hoverBg} transition-all duration-300 hover:shadow-xl hover:scale-105 `}
+          <motion.div
+            className={`card w-[350px] p-8 rounded-lg shadow-lg pb-0 cursor-pointer ${card.bg} ${card.hoverBg} `}
             key={index}
+            initial={{ opacity: 0, y: 50 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, delay: index * 0.3 }}
           >
             <p className=" text-justify">"{card.text}"</p>
             <div className="flex justify-between ">
@@ -57,7 +66,7 @@ function Testimonials() {
               </div>
               <img src={card.rating} className=" w-[150px]" />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

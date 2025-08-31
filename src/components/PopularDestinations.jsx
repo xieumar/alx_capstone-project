@@ -15,13 +15,13 @@ function PopularDestinations() {
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
 
   return (
-    <div className="popular-destinations flex flex-col gap-6 w-full p-4 my-12" ref={containerRef}>
+    <div className="popular-destinations flex flex-col gap-6 w-full p-4 my-12" >
       <div className="section-title w-full text-center mb-0 sm:mb-6">
         <p className="text-[#143D60] font-bold">EXPLORE</p>
         <h1 className="text-3xl sm:text-5xl font-semibold">Popular Destinations</h1>
       </div>
 
-      <div className="card-container flex justify-center items-center flex-wrap gap-6">
+      <div className="card-container flex justify-center items-center flex-wrap gap-6" ref={containerRef}>
         {cards.map((card, index) => (
           <motion.div
             key={index}

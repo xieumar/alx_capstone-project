@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { MdArrowRightAlt } from "react-icons/md";
+import { motion, useInView } from "framer-motion";
 
 const cards = [
   {
@@ -30,19 +31,25 @@ const cards = [
 
 function TravelGuides() {
   const [active, setActive] = useState(null);
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+
   return (
     <div className="travel-guides flex flex-col gap-3 w-full p-10 my-6">
       <div className="section-title w-full">
-        <div className="text  flex flex-col text-center mb-6">
+        <div className="text  flex flex-col text-center mb-2 sm:mb-6">
           <p className=" text-[#143D60] font-bold">BLOGS</p>
-          <h1 className=" text-4xl font-semibold">Popular Travel guides</h1>
+          <h1 className=" text-3xl sm:text-5xl font-semibold">Popular Travel guides</h1>
         </div>
       </div>
-      <div className="cards-container flex justify-center items-center flex-wrap gap-6">
+      <div className="cards-container flex justify-center items-center flex-wrap gap-6  " ref={containerRef}>
         {cards.map((card, index) => (
-          <div
+          <motion.div
             key={index}
-            className="card flex flex-col shadow-lg rounded-2xl  transition-all duration-300 hover:shadow-xl hover:scale-103 cursor-pointer "
+            initial={{ opacity: 0, y: 50 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, delay: index * 0.3 }}
+            className="card flex flex-col shadow-lg rounded-2xl hover:bg-blue-200/50 hover:shadow-xl cursor-pointer "
           >
             <img
               src={card.src}
@@ -60,7 +67,7 @@ function TravelGuides() {
                 <p>{card.author}</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
       <div className="button mt-12 text-center mx-auto">
