@@ -161,9 +161,7 @@ function DestinationDetails() {
           <div className="map h-[50vh]">
             <MapContainer center={[details.coordinates.lat, details.coordinates.lng]} zoom={12} className="h-full w-full rounded-xl">
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap contributors" />
-              <Marker position={[details.coordinates.lat, details.coordinates.lng]}>
-                <Popup>{details.name}</Popup>
-              </Marker>
+
             </MapContainer>
           </div>
         )}
@@ -181,7 +179,8 @@ function DestinationDetails() {
           {details.flights?.length > 0 ? (
             <ul>
               {details.flights.map((f, idx) => (
-                <li key={idx}>{f.airline} – {f.price} {f.currency}</li>
+                <li    className="text-[#143D60] font-medium px-3 py-1 border border-[#143D60] border-[2px] rounded-lg hover:bg-[#143D60] hover:text-white transition-colors duration-300"
+                  key={idx}>{f.airline} – {f.price} {f.currency} </li>
               ))}
             </ul>
           ) : (
@@ -195,7 +194,8 @@ function DestinationDetails() {
           {details.hotels?.length > 0 ? (
             <ul>
               {details.hotels.map((h, idx) => (
-                <li key={idx}>{h.name} – {h.price} {h.currency}</li>
+                <li    className="text-[#143D60] font-medium px-3 py-1 border border-[#143D60] border-[2px] rounded-lg hover:bg-[#143D60] hover:text-white transition-colors duration-300"
+                  key={idx}>{h.name} – {h.price} {h.currency}</li>
               ))}
             </ul>
           ) : (
