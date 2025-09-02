@@ -172,14 +172,16 @@ export async function getWeather(lat, lon) {
 
 // 📖 Destination Details (Wikipedia + Amadeus + OSM + Unsplash)
 export async function getDestinationDetails(cityName) {
-  // ... unchanged, your existing implementation ...
+ 
 }
 
-// ✈️ Flights from backend proxy (fixed)
+// Flights
 export async function getFlightsFromServer(destinationCode) {
   try {
     const today = new Date().toISOString().split("T")[0];
-    const res = await fetch(`${API_BASE}/api/flights/NYC/${destinationCode}/${today}`);
+    const res = await fetch(
+      `${API_BASE}/api/flights?origin=NYC&destination=${destinationCode}&date=${today}`
+    );
     const data = await res.json();
     return (data.data || []).map((offer) => {
       const price = offer?.price?.total || "N/A";
@@ -194,10 +196,10 @@ export async function getFlightsFromServer(destinationCode) {
   }
 }
 
-// 🏨 Hotels from backend proxy (fixed)
+// Hotels
 export async function getHotelsFromServer(cityCode) {
   try {
-    const res = await fetch(`${API_BASE}/api/hotels/${cityCode}`);
+    const res = await fetch(`${API_BASE}/api/hotels?cityCode=${cityCode}`);
     const data = await res.json();
     return (data.data || []).map((hotelOffer) => {
       const hotelName = hotelOffer.hotel?.name || "Unnamed Hotel";
@@ -210,6 +212,7 @@ export async function getHotelsFromServer(cityCode) {
     return [];
   }
 }
+
 
 // 🖼️ Unsplash single image helper
 export async function getUnsplashImage(cityName) {
