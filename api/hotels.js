@@ -1,4 +1,3 @@
-// /api/hotels.js
 import { getAmadeusToken } from "./_utils.js";
 
 let cachedData = null;
