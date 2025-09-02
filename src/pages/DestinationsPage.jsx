@@ -1,3 +1,4 @@
+// DestinationsPage.jsx
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -17,14 +18,13 @@ export default function DestinationsPage() {
   });
 
   return (
-    <div className="my-[80px] h-screen p-4 max-w-5xl mx-auto">
-
+    <div className="my-[80px] p-4 max-w-5xl mx-auto">
       {isLoading && <Loading />}
       {error && <p className="text-red-500">Error: {error.message}</p>}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {destinations?.map((city) => (
-          <DestinationCard key={city.cityCode} city={city} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        {destinations?.map((city, index) => (
+          <DestinationCard key={city.cityCode} city={city} index={index} />
         ))}
       </div>
     </div>
