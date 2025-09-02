@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function DestinationSearch() {
+export default function DestinationSearch({ onSearchComplete }) {
   const [keyword, setKeyword] = useState("");
   const navigate = useNavigate();
 
@@ -9,8 +9,10 @@ export default function DestinationSearch() {
     if (keyword.trim()) {
       navigate(`/destinations?keyword=${encodeURIComponent(keyword)}`);
     }
-  };
 
+     if (onSearchComplete) onSearchComplete();
+  };
+   
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex">

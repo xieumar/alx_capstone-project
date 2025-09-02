@@ -18,13 +18,13 @@ function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/10 backdrop-blur-sm z-50 ">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 md:py-4">
-       
+
         <div className="flex items-center gap-2 text-2xl text-[#143D60]">
           <ImLocation2 className="text-3xl" />
           <p className="font-semibold text-black">Trip Planner</p>
         </div>
 
-      
+
         <div className="hidden lg:flex md:w-2/5">
           <DestinationSearch />
         </div>
@@ -58,7 +58,7 @@ function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-blue-300/20 shadow-md px-4 py-3 flex flex-col gap-3">
-          <DestinationSearch />
+          <DestinationSearch onSearchComplete={() => setMenuOpen(false)} />
           {navLinks.map(({ name, path }) => (
             <Link
               key={name}
@@ -71,6 +71,7 @@ function Navbar() {
           ))}
         </div>
       )}
+
     </nav>
   );
 }
