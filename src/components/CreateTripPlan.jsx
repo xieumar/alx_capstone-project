@@ -156,7 +156,7 @@ function ActivityForm({ onAdd }) {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 flex-col gap-y-3">
       <h3 className="font-semibold">Add Activity</h3>
       <Input
         placeholder="Activity Name"

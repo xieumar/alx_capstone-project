@@ -156,7 +156,7 @@ function DestinationDetails() {
       </div>
 
       {/* Right column */}
-      <div className="map mt-16 lg:w-1/3 flex flex-col gap-y-6">
+      <div className="map mt-10 sm:mt-16 lg:w-1/3 flex flex-col gap-y-6">
         {details.coordinates && (
           <div className="map h-[50vh]">
             <MapContainer center={[details.coordinates.lat, details.coordinates.lng]} zoom={12} className="h-full w-full rounded-xl">
