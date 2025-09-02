@@ -170,9 +170,158 @@ export async function getWeather(lat, lon) {
   }
 }
 
-// 📖 Destination Details (Wikipedia + Amadeus + OSM + Unsplash)
+// 📖 Destination Details (Backend + Frontend mix)
 export async function getDestinationDetails(cityName) {
- 
+  let coordinates = null;
+  let firstMatch = null;
+  let attractionsList = [];
+  let cityCode = null;
+  let images = [];
+  let description = "No description available.";
+  let guideLink = "";
+  let flights = [];
+  let hotels = [];
+  let weather = null;
+
+  try {
+    // ✅ Wikipedia
+    const wikiRes = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cityName)}`
+    );
+    const wikiData = await wikiRes.json();
+    description = wikiData.extract || description;
+    guideLink = wikiData.content_urls?.desktop?.page || "";
+
+    // ✅ Amadeus city lookup
+    try {
+      const access_token = await getAmadeusToken();
+      const geoRes = await fetch(
+        `https://test.api.amadeus.com/v1/reference-data/locations?keyword=${encodeURIComponent(
+          cityName
+        )}&subType=CITY`,
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
+      const geoData = await geoRes.json();
+      firstMatch = geoData.data?.[0];
+      if (firstMatch?.geoCode) {
+        coordinates = {
+          lat: firstMatch.geoCode.latitude,
+          lng: firstMatch.geoCode.longitude,
+        };
+      }
+      if (firstMatch?.iataCode) {
+        cityCode = firstMatch.iataCode;
+      }
+    } catch {
+      console.warn("Amadeus coordinates not found, falling back to OSM");
+    }
+
+    // ✅ OSM fallback for coordinates
+    if (!coordinates) {
+      coordinates = await getCoordinatesFromOSM(cityName);
+    }
+
+    // ✅ OSM attractions
+    if (coordinates) {
+      const radius = 2000;
+      const overpassQuery = `
+        [out:json];
+        node(around:${radius},${coordinates.lat},${coordinates.lng})["tourism"~"museum|attraction|viewpoint"];
+        out;
+      `;
+      try {
+        const osmRes = await fetch(
+          `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
+        );
+        const osmData = await osmRes.json();
+        attractionsList = osmData.elements
+          .map((el) => el.tags?.name)
+          .filter(Boolean);
+      } catch {
+        console.warn("OSM attractions fetch failed");
+      }
+    }
+
+    // ✅ Unsplash images
+    images = await fetchCityImages(cityName);
+
+    // ✅ Flights (via backend)
+    if (cityCode) {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+        const res = await fetch(
+          `/api/flights?origin=NYC&destination=${cityCode}&date=${today}`
+        );
+        const data = await res.json();
+        flights = Array.isArray(data) ? data.slice(0, 5) : [];
+      } catch (err) {
+        console.warn("Flights fetch failed", err);
+        flights = [];
+      }
+    }
+
+    // ✅ Hotels (via backend)
+    if (cityCode) {
+      try {
+        const res = await fetch(`/api/hotels?cityCode=${cityCode}`);
+        const data = await res.json();
+        hotels = Array.isArray(data) ? data.slice(0, 8) : [];
+      } catch (err) {
+        console.warn("Hotels fetch failed", err);
+        hotels = [];
+      }
+    }
+
+    // ✅ Weather
+    if (coordinates) {
+      const rawWeather = await getWeather(coordinates.lat, coordinates.lng);
+      weather = rawWeather
+        ? {
+            description:
+              rawWeather.weather?.[0]?.description ?? "N/A",
+            temp:
+              rawWeather.main?.temp !== undefined
+                ? Math.round(rawWeather.main.temp)
+                : "N/A",
+          }
+        : null;
+    }
+
+    return {
+      name: wikiData.title || cityName,
+      description,
+      guideLink,
+      attractions: attractionsList.length
+        ? attractionsList
+        : ["No attractions found"],
+      coordinates,
+      cityCode,
+      images,
+      image: images[0] || null,
+      flights,
+      hotels,
+      weather,
+    };
+  } catch (err) {
+    console.error("Error fetching destination details:", err);
+    return {
+      name: cityName,
+      description,
+      guideLink,
+      attractions: attractionsList.length
+        ? attractionsList
+        : ["No attractions found"],
+      coordinates,
+      cityCode,
+      images,
+      image: images[0] || null,
+      flights,
+      hotels,
+      weather,
+    };
+  }
 }
 
 // Flights
