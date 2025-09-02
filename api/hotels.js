@@ -56,6 +56,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errBody = await response.text();
+      console.error("Amadeus hotel error:", response.status, errBody);
       throw new Error(`Amadeus error: ${response.status} ${errBody}`);
     }
 
