@@ -3,29 +3,56 @@ import { getAmadeusToken } from "./_utils.js";
 let cachedData = null;
 let cachedKey = null;
 let cachedAt = 0;
-const CACHE_DURATION = 1000 * 60 * 5; 
+const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
 
 export default async function handler(req, res) {
-  const { cityCode } = req.query;
+  const { cityCode, checkInDate, checkOutDate } = req.query;
 
-  if (!cityCode) {
-    return res.status(400).json({ error: "Missing required query param: cityCode" });
+  if (!cityCode || !checkInDate || !checkOutDate) {
+    return res
+      .status(400)
+      .json({ error: "Missing required query params (cityCode, checkInDate, checkOutDate)" });
   }
 
-  const cacheKey = cityCode;
-
+  const cacheKey = `${cityCode}-${checkInDate}-${checkOutDate}`;
   const now = Date.now();
+
+  // ✅ Serve from cache if still valid
   if (cachedData && cachedKey === cacheKey && now - cachedAt < CACHE_DURATION) {
     return res.status(200).json({ ...cachedData, cached: true });
   }
 
   try {
     const token = await getAmadeusToken();
-    const url = `https://test.api.amadeus.com/v2/shopping/hotel-offers?cityCode=${cityCode}&adults=1&roomQuantity=1&radius=5&radiusUnit=KM&paymentPolicy=NONE&includeClosed=false&bestRateOnly=true&view=FULL&sort=PRICE&currency=USD`;
 
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // ✅ POST body
+    const body = {
+      currency: "USD",
+      travelerId: "1",
+      hotelCriteria: [
+        {
+          cityCode,
+          checkInDate,
+          checkOutDate,
+          roomQuantity: 1,
+          adults: 1,
+          radius: 5,
+          radiusUnit: "KM",
+        },
+      ],
+    };
+
+    const response = await fetch(
+      "https://test.api.amadeus.com/v3/shopping/hotel-offers",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
 
     if (!response.ok) {
       const errBody = await response.text();
@@ -34,6 +61,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    // ✅ Cache result
     cachedData = data;
     cachedKey = cacheKey;
     cachedAt = Date.now();

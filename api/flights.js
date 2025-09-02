@@ -23,9 +23,53 @@ export default async function handler(req, res) {
 
   try {
     const token = await getAmadeusToken();
-    const url = `https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=${origin}&destinationLocationCode=${destination}&departureDate=${date}&adults=1&nonStop=false&max=50`;
 
-    const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    // ✅ new POST body
+    const body = {
+      currencyCode: "USD",
+      originDestinations: [
+        {
+          id: "1",
+          originLocationCode: origin,
+          destinationLocationCode: destination,
+          departureDateTimeRange: {
+            date: date, // "YYYY-MM-DD"
+            time: "10:00:00",
+          },
+        },
+      ],
+      travelers: [
+        {
+          id: "1",
+          travelerType: "ADULT",
+        },
+      ],
+      sources: ["GDS"],
+      searchCriteria: {
+        maxFlightOffers: 5,
+        flightFilters: {
+          cabinRestrictions: [
+            {
+              cabin: "ECONOMY", // you can change to BUSINESS if you like
+              coverage: "MOST_SEGMENTS",
+              originDestinationIds: ["1"],
+            },
+          ],
+        },
+      },
+    };
+
+    const response = await fetch(
+      "https://test.api.amadeus.com/v2/shopping/flight-offers",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
 
     if (!response.ok) {
       const errBody = await response.text();
