@@ -344,12 +344,17 @@ export async function getFlightsFromServer(destinationCode) {
   }
 }
 
+// Hotels
 export async function getHotelsFromServer(cityCode) {
   try {
     const res = await fetch(`/api/hotels?cityCode=${cityCode}`);
-    if (!res.ok) throw new Error("Hotels API failed: " + res.status);
+    if (!res.ok) throw new Error(`Hotels API failed: ${res.status}`);
     const data = await res.json();
-    return data.data || [];
+    return (data.data || []).map((h) => ({
+      name: h.name?.replace(/–/g, "").trim(),
+      hotelId: h.hotelId,
+      address: h.address?.lines?.join(", "),
+    }));
   } catch (err) {
     console.error("Hotels fetch from server failed", err);
     return [];

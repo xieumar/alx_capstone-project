@@ -120,7 +120,7 @@ function DestinationDetails() {
         )}
 
         {details.attractions?.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-4 sm:mt-8">
             <h2 className="text-2xl font-semibold mb-5 border-b-2 inline-block pb-1">Top Attractions</h2>
             <ul className="flex flex-wrap gap-3 gap-y-4">
               {details.attractions.slice(0, 12).map((attraction, idx) => (
@@ -139,7 +139,7 @@ function DestinationDetails() {
           </div>
         )}
 
-        <div className="mt-12 flex gap-4">
+        <div className="mt-12 flex flex-col sm:flex-row gap-4">
           <h1 className="text-2xl font-semibold mb-4">
             Does {details.name} look like a great trip destination?
           </h1>
@@ -177,9 +177,9 @@ function DestinationDetails() {
         <div>
           <h2 className="text-2xl font-semibold mb-2">Flights</h2>
           {details.flights?.length > 0 ? (
-            <ul>
+            <ul className=" flex flex-wrap gap-2">
               {details.flights.map((f, idx) => (
-                <li    className="text-[#143D60] font-medium px-3 py-1 border border-[#143D60] border-[2px] rounded-lg hover:bg-[#143D60] hover:text-white transition-colors duration-300"
+                <li    className="text-[#143D60] inline-block font-medium px-3 py-1 border border-[#143D60] border-[2px] rounded-lg hover:bg-[#143D60] hover:text-white transition-colors duration-300"
                   key={idx}>{f.airline} – {f.price} {f.currency} </li>
               ))}
             </ul>
