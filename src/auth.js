@@ -328,7 +328,7 @@ export async function getFlightsFromServer(destinationCode) {
   try {
     const today = new Date().toISOString().split("T")[0];
     const res = await fetch(
-      `${API_BASE}/api/flights?origin=NYC&destination=${destinationCode}&date=${today}`
+      `${API_BASE}/flights?origin=NYC&destination=${destinationCode}&date=${today}`
     );
     const data = await res.json();
     return (data.data || []).map((offer) => {
@@ -347,7 +347,7 @@ export async function getFlightsFromServer(destinationCode) {
 // Hotels
 export async function getHotelsFromServer(cityCode) {
   try {
-    const res = await fetch(`${API_BASE}/api/hotels?cityCode=${cityCode}`);
+    const res = await fetch(`${API_BASE}/hotels?cityCode=${cityCode}`);
     const data = await res.json();
     return (data.data || []).map((hotelOffer) => {
       const hotelName = hotelOffer.hotel?.name || "Unnamed Hotel";
