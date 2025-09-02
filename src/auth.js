@@ -344,28 +344,18 @@ export async function getFlightsFromServer(destinationCode) {
   }
 }
 
-export async function getHotelsFromServer(lat, lng) {
+export async function getHotelsFromServer(cityCode) {
   try {
-    const res = await fetch(`/api/hotels?lat=${lat}&lng=${lng}`);
-    if (!res.ok) throw new Error(`Hotels API failed: ${res.status}`);
-    const json = await res.json();
-
-    return (json.data || []).map((hotel) => ({
-      id: hotel.hotelId,
-      name: hotel.name || "Unknown Hotel",
-      city: hotel.address?.cityName || "N/A",
-      country: hotel.address?.countryCode || "",
-      distance: hotel.distance?.value
-        ? `${hotel.distance.value} ${hotel.distance.unit}`
-        : "N/A",
-      lat: hotel.geoCode?.latitude,
-      lng: hotel.geoCode?.longitude,
-    }));
+    const res = await fetch(`/api/hotels?cityCode=${cityCode}`);
+    if (!res.ok) throw new Error("Hotels API failed: " + res.status);
+    const data = await res.json();
+    return data.data || [];
   } catch (err) {
     console.error("Hotels fetch from server failed", err);
     return [];
   }
 }
+
 
 
 // 🖼️ Unsplash single image helper
