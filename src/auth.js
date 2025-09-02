@@ -170,7 +170,7 @@ export async function getWeather(lat, lon) {
   }
 }
 
-// 📖 Destination Details (Backend + Frontend mix)
+// 📖 Destination Details (Amadeus + Wikipedia + OSM + Unsplash + Backend)
 export async function getDestinationDetails(cityName) {
   let coordinates = null;
   let firstMatch = null;
@@ -192,19 +192,18 @@ export async function getDestinationDetails(cityName) {
     description = wikiData.extract || description;
     guideLink = wikiData.content_urls?.desktop?.page || "";
 
-    // ✅ Amadeus city lookup
+    // ✅ Amadeus city + coordinates
     try {
       const access_token = await getAmadeusToken();
       const geoRes = await fetch(
         `https://test.api.amadeus.com/v1/reference-data/locations?keyword=${encodeURIComponent(
           cityName
         )}&subType=CITY`,
-        {
-          headers: { Authorization: `Bearer ${access_token}` },
-        }
+        { headers: { Authorization: `Bearer ${access_token}` } }
       );
       const geoData = await geoRes.json();
       firstMatch = geoData.data?.[0];
+
       if (firstMatch?.geoCode) {
         coordinates = {
           lat: firstMatch.geoCode.latitude,
@@ -218,12 +217,17 @@ export async function getDestinationDetails(cityName) {
       console.warn("Amadeus coordinates not found, falling back to OSM");
     }
 
-    // ✅ OSM fallback for coordinates
+    // ✅ OSM fallback
     if (!coordinates) {
       coordinates = await getCoordinatesFromOSM(cityName);
     }
 
-    // ✅ OSM attractions
+    // ✅ Fallback cityCode if missing
+    if (!cityCode && cityName) {
+      cityCode = cityName.toUpperCase().slice(0, 3);
+    }
+
+    // ✅ OSM attractions fallback
     if (coordinates) {
       const radius = 2000;
       const overpassQuery = `
@@ -247,27 +251,20 @@ export async function getDestinationDetails(cityName) {
     // ✅ Unsplash images
     images = await fetchCityImages(cityName);
 
-    // ✅ Flights (via backend)
+    // ✅ Flights (always through backend)
     if (cityCode) {
       try {
-        const today = new Date().toISOString().split("T")[0];
-        const res = await fetch(
-          `/api/flights?origin=NYC&destination=${cityCode}&date=${today}`
-        );
-        const data = await res.json();
-        flights = Array.isArray(data) ? data.slice(0, 5) : [];
+        flights = await getFlightsFromServer(cityCode);
       } catch (err) {
         console.warn("Flights fetch failed", err);
         flights = [];
       }
     }
 
-    // ✅ Hotels (via backend)
+    // ✅ Hotels (always through backend)
     if (cityCode) {
       try {
-        const res = await fetch(`/api/hotels?cityCode=${cityCode}`);
-        const data = await res.json();
-        hotels = Array.isArray(data) ? data.slice(0, 8) : [];
+        hotels = await getHotelsFromServer(cityCode);
       } catch (err) {
         console.warn("Hotels fetch failed", err);
         hotels = [];
@@ -289,6 +286,7 @@ export async function getDestinationDetails(cityName) {
         : null;
     }
 
+    // ✅ Final return
     return {
       name: wikiData.title || cityName,
       description,
@@ -323,6 +321,7 @@ export async function getDestinationDetails(cityName) {
     };
   }
 }
+
 
 // Flights
 export async function getFlightsFromServer(destinationCode) {
